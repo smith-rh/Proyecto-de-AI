@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone Marketing Query App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Aplicación de consulta de marketing para iPhone</h1>
+        <p>¡Bienvenido a nuestra tienda! Ofrecemos los últimos iPhones y accesorios. .</p>
+        <form id="query-form">
+            <input type="text" id="question" name="question" placeholder="Enter your iPhone marketing question" required>
+            <button type="submit">Ask</button>
+        </form>
+        <div id="response"></div>
+    </div>
+    <script>
+        document.getElementById('query-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const question = document.getElementById('question').value;
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ question })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('response').innerText = 'Error: ' + data.error;
+                } else {
+                    let responseText = 'Response: ' + data.response;
+                    if (data.vision_response) {
+                        responseText += '\nVision Response: ' + data.vision_response;
+                    }
+                    if (data.recommendations) {
+                        responseText += '\nRecommendations:\n' + data.recommendations.join('\n');
+                    }
+                    document.getElementById('response').innerText = responseText;
+                }
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = 'Error: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>
